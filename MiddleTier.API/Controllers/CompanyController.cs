@@ -22,6 +22,13 @@ namespace MiddleTier.API.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet("{isin:string}")]
+        public async Task<ActionResult<CompanyViewModel>> GetByISIN(string isin)
+        {
+            var result = await _companyService.GetByISIN(isin);
+            return CustomResponse(result);
+        }
+
         [HttpPost]
         public async Task<ActionResult<CompanyViewModel>> Add(CompanyViewModel companyViewModel)
         {

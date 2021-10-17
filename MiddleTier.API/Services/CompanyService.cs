@@ -8,86 +8,47 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using MiddleTier.API.Interfaces;
 using MiddleTier.API.Models;
+using MiddleTier.API.Response;
 using MiddleTier.API.ViewModels;
 
 namespace MiddleTier.API.Services
 {
     public class CompanyService : BaseService, ICompanyService
     {
-        //private static string APIUrl = "https://api.openweathermap.org/data/2.5/weather?q=London,uk&APPID=90506b5793253b8740b4583a6f4386a8";
-        private static string APIUrl = "http://localhost:4000/api/v1.0/Companies";
+        private readonly IAPIRequestService _APIRequestService;
 
-        public CompanyService(INotifier notifier) : base(notifier)
+        public CompanyService(INotifier notifier, IAPIRequestService aPIRequestService) : base(notifier)
         {
+            _APIRequestService = aPIRequestService;
+        }
+
+        public async Task<CompanyViewModel> GetByISIN(string isin)
+        {
+            return await _APIRequestService.GetByISIN(isin);
         }
 
         public async Task<bool> Add(CompanyViewModel company)
         {
-            try
+            var existingCompany = await _APIRequestService.GetByISIN(company.ISIN);
+            if (existingCompany != null && existingCompany?.ISIN == company.ISIN)
             {
-                using (var client = new HttpClient())
-                {
-                    client.BaseAddress = new Uri(APIUrl);
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    var content = new StringContent(JsonSerializer.Serialize<CompanyViewModel>(company), Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = await client.PostAsync(APIUrl, content);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var readTask = response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        var rawResponse = readTask.GetAwaiter().GetResult();
-                        Console.WriteLine(rawResponse);
-                        return true;
-                    }
-                    Notify(response.ReasonPhrase);
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Notify(ex.Message);
+                Notify($"Can not insert duplicate ISIN for Company. Duplicate ISIN is ({company.ISIN})");
                 return false;
+            }
+            else
+            {
+                return await _APIRequestService.Add(company);
             }
         }
 
         public async Task<IEnumerable<CompanyViewModel>> GetAll()
         {
-            try
-            {
-                using (var client = new HttpClient())
-                {
-                    client.BaseAddress = new Uri(APIUrl);
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    HttpResponseMessage response = await client.GetAsync(APIUrl);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var readTask = response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        var rawResponse = readTask.GetAwaiter().GetResult();
-
-                        // Deserealize JSON to ViewModel
-                        var options = new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        };
-                        return JsonSerializer.Deserialize<IEnumerable<CompanyViewModel>>(rawResponse, options);
-                    }
-                    Notify(response.ReasonPhrase);
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                Notify(ex.Message);
-                return null;
-            }
+            return await _APIRequestService.GetAll();
         }
 
         public void Dispose()
         {
-
+            _APIRequestService?.Dispose();
         }
     }
 }
