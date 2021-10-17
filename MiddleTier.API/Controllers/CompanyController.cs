@@ -27,15 +27,16 @@ namespace MiddleTier.API.Controllers
         {
             if (!ModelState.IsValid) return CustomResponse(ModelState);
 
-            await _companyService.Add(_mapper.Map<Company>(companyViewModel));
-
+            await _companyService.Add(companyViewModel);
+            // TODO return something more meaningful
             return CustomResponse(companyViewModel);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CompanyViewModel>> GetAll()
+        public async Task<ActionResult<IEnumerable<CompanyViewModel>>> GetAll()
         {
-            return await _companyService.GetAll();
+            var result = await _companyService.GetAll();
+            return CustomResponse(result);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace MiddleTier.API.Interfaces
 {
     public interface ICompanyService : IDisposable
     {
-        Task<bool> Add(Company company);
+        Task<bool> Add(CompanyViewModel company);
 
         Task<IEnumerable<CompanyViewModel>> GetAll();
     }
