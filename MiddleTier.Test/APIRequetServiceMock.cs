@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace MiddleTier.Test
         {
             companies = new List<CompanyViewModel>
             {
-                new CompanyViewModel{Name = "Apple", Exchange = "Nasdaq", Ticker = "0ticker0", ISIN = "US12A1235699", WebSite = "apple.com"}
+                new CompanyViewModel{Id = Guid.Parse("55bca715-c209-45c6-8d53-1ab35907ce8a"), Name = "Apple", Exchange = "Nasdaq", Ticker = "0ticker0", ISIN = "US12A1235699", WebSite = "apple.com"}
             };
         }
 
@@ -34,9 +35,14 @@ namespace MiddleTier.Test
             return Task.FromResult((IEnumerable<CompanyViewModel>)companies);
         }
 
+        public Task<CompanyViewModel> GetById(Guid id)
+        {
+            return Task.FromResult((CompanyViewModel)companies.Where(c => c.Id == id).FirstOrDefault());
+        }
+
         public Task<CompanyViewModel> GetByISIN(string isin)
         {
-            return Task.FromResult((CompanyViewModel)companies.Where(c => c.ISIN == isin));
+            return Task.FromResult((CompanyViewModel)companies.Where(c => c.ISIN == isin).FirstOrDefault());
         }
     }
 }
