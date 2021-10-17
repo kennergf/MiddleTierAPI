@@ -7,6 +7,8 @@ namespace MiddleTier.API.Interfaces
 {
     public interface ICompanyService : IDisposable
     {
+        Task<CompanyViewModel> GetById(Guid id);
+        
         Task<CompanyViewModel> GetByISIN(string isin);
 
         Task<bool> Add(CompanyViewModel company);

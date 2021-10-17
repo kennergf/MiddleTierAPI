@@ -13,7 +13,7 @@ namespace MiddleTier.API.Services
 {
     public class APIRequestService : BaseService, IAPIRequestService
     {
-        private static string APIUrl = "http://localhost:4000/api/v1.0/Companies/";
+        private static string APIUrl = "http://localhost:4000/api/v1.0/Companies";
         private static HttpClient client;
 
         public APIRequestService(INotifier notifier) : base(notifier)
@@ -24,11 +24,37 @@ namespace MiddleTier.API.Services
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
+        public async Task<CompanyViewModel> GetById(Guid id)
+        {
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync(APIUrl + "/GetById?Id=" + id);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var readTask = response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    var rawResponse = readTask.GetAwaiter().GetResult();
+
+                    // Deserealize JSON to ViewModel
+                    return JsonSerializer.Deserialize<CompanyViewModel>(rawResponse,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                }
+                Notify(response.ReasonPhrase);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Notify(ex.Message);
+                Notify(ex.InnerException?.Message);
+                return null;
+            }
+        }
+
         public async Task<CompanyViewModel> GetByISIN(string isin)
         {
             try
             {
-                HttpResponseMessage response = await client.GetAsync(APIUrl + isin);
+                HttpResponseMessage response = await client.GetAsync(APIUrl + "/GetByISIN?ISIN=" + isin);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -65,21 +91,12 @@ namespace MiddleTier.API.Services
                     var rawResponse = readTask.GetAwaiter().GetResult();
                     Console.WriteLine(rawResponse);
                     return true;
-                    // return new CustomResponse<CompanyViewModel>(Response.Response.EntityCreated,
-                    // $"Company {company.Name} added with success",
-                    // company);
                 }
-                // return new CustomResponse<CompanyViewModel>(Response.Response.EntityCreated,
-                //     response.ReasonPhrase,
-                //     company);
                 Notify(response.ReasonPhrase);
                 return false;
             }
             catch (Exception ex)
             {
-                // return new CustomResponse<CompanyViewModel>(Response.Response.EntityCreated,
-                //     ex.Message,
-                //     company);
                 Notify(ex.Message);
                 Notify(ex.InnerException?.Message);
                 return false;
@@ -112,9 +129,36 @@ namespace MiddleTier.API.Services
             }
         }
 
+        public async Task<CompanyViewModel> Update(Guid id, CompanyViewModel company)
+        {
+            try
+            {
+                var content = new StringContent(JsonSerializer.Serialize<CompanyViewModel>(company), Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await client.PutAsync(APIUrl + "?Id=" + id, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var readTask = response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    var rawResponse = readTask.GetAwaiter().GetResult();
+
+                    // Deserealize JSON to ViewModel
+                    return JsonSerializer.Deserialize<CompanyViewModel>(rawResponse,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                }
+                Notify(response.ReasonPhrase);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Notify(ex.Message);
+                Notify(ex.InnerException?.Message);
+                return null;
+            }
+        }
+
         public void Dispose()
         {
-            
+
         }
     }
 }

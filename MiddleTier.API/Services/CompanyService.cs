@@ -22,6 +22,11 @@ namespace MiddleTier.API.Services
             _APIRequestService = aPIRequestService;
         }
 
+        public async Task<CompanyViewModel> GetById(Guid id)
+        {
+            return await _APIRequestService.GetById(id);
+        }
+
         public async Task<CompanyViewModel> GetByISIN(string isin)
         {
             return await _APIRequestService.GetByISIN(isin);
