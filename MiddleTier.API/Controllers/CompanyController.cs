@@ -1,17 +1,25 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Web.Http;
+using MiddleTier.API.Interfaces;
+using MiddleTier.API.Models;
 using MiddleTier.API.ViewModels;
 
 namespace MiddleTier.API.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/Company")]
+    [Route("api/v{version:apiVersion}/Companies")]
     public class CompanyController : MainController
     {
-        public CompanyController(ILogger<MainController> logger) : base(logger)
+        private readonly ICompanyService _companyService;
+        private readonly IMapper _mapper;
+
+        public CompanyController(INotifier notifier, ICompanyService companyService,
+                                 IMapper mapper) : base(notifier)
         {
+            _companyService = companyService;
+            _mapper = mapper;
         }
 
         [HttpPost]
@@ -19,9 +27,15 @@ namespace MiddleTier.API.Controllers
         {
             if (!ModelState.IsValid) return CustomResponse(ModelState);
 
-            await _fornecedorService.Adicionar(_mapper.Map<Fornecedor>(companyViewModel));
+            await _companyService.Add(_mapper.Map<Company>(companyViewModel));
 
             return CustomResponse(companyViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IEnumerable<CompanyViewModel>> GetAll()
+        {
+            return await _companyService.GetAll();
         }
     }
 }

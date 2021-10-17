@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.Logging;
 using MiddleTier.API.Interfaces;
 using MiddleTier.API.Models;
 
@@ -11,13 +10,11 @@ namespace MiddleTier.API.Controllers
     public abstract class MainController : ControllerBase
     {
         private readonly INotifier _notifier;
-        public readonly IUser _APIUser;
+        //public readonly IUser _APIUser;
 
-        private readonly ILogger<MainController> _logger;
-
-        public MainController(ILogger<MainController> logger)
+        public MainController(INotifier notifier)
         {
-            _logger = logger;
+            _notifier = notifier;
         }
 
         protected bool OperationValid()
