@@ -46,6 +46,7 @@ namespace MiddleTier.API
 
             services.AddScoped<INotifier, Notifier>();
             services.AddScoped<ICompanyService, CompanyService>();
+            services.AddScoped<IAPIRequestService, APIRequestService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

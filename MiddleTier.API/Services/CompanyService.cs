@@ -22,23 +22,23 @@ namespace MiddleTier.API.Services
             _APIRequestService = aPIRequestService;
         }
 
-        public async Task<CompanyViewModel> GetById(Guid id)
+        public async Task<CustomResponse<CompanyViewModel>> GetById(Guid id)
         {
             return await _APIRequestService.GetById(id);
         }
 
-        public async Task<CompanyViewModel> GetByISIN(string isin)
+        public async Task<CustomResponse<CompanyViewModel>> GetByISIN(string isin)
         {
             return await _APIRequestService.GetByISIN(isin);
         }
 
-        public async Task<bool> Add(CompanyViewModel company)
+        public async Task<CustomResponse<CompanyViewModel>> Add(CompanyViewModel company)
         {
             var existingCompany = await _APIRequestService.GetByISIN(company.ISIN);
-            if (existingCompany != null && existingCompany?.ISIN == company.ISIN)
+            if (existingCompany.Data != null && existingCompany?.Data?.ISIN == company.ISIN)
             {
-                Notify($"Can not insert duplicate ISIN for Company. Duplicate ISIN is ({company.ISIN})");
-                return false;
+                Notify(ResponseMessage.ISIN_DUPLICATED);
+                return new CustomResponse<CompanyViewModel>(false, ResponseMessage.ISIN_DUPLICATED, null);
             }
             else
             {
@@ -46,7 +46,20 @@ namespace MiddleTier.API.Services
             }
         }
 
-        public async Task<IEnumerable<CompanyViewModel>> GetAll()
+        public async Task<CustomResponse<CompanyViewModel>> Update(Guid id, CompanyViewModel company)
+        {
+            if(id != company.Id)
+            {
+                Notify(ResponseMessage.ID_PROVIDED_DOES_NOT_MATCH_COMPANY_ID);
+                return new CustomResponse<CompanyViewModel>(false, ResponseMessage.ID_PROVIDED_DOES_NOT_MATCH_COMPANY_ID, null);
+            }
+            else
+            {
+                return await _APIRequestService.Update(id, company);
+            }
+        }
+
+        public async Task<CustomResponse<IEnumerable<CompanyViewModel>>> GetAll()
         {
             return await _APIRequestService.GetAll();
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -22,11 +23,18 @@ namespace MiddleTier.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("{isin:string}")]
-        public async Task<ActionResult<CompanyViewModel>> GetByISIN(string isin)
+        [HttpGet("[action]")]
+        public async Task<ActionResult<CompanyViewModel>> GetById([FromQuery] string id)
+        {
+            var result = await _companyService.GetById(Guid.Parse(id));
+            return CustomResponse(result.Data);
+        }
+
+        [HttpGet("[action]")]
+        public async Task<ActionResult<CompanyViewModel>> GetByISIN([FromQuery] string isin)
         {
             var result = await _companyService.GetByISIN(isin);
-            return CustomResponse(result);
+            return CustomResponse(result.Data);
         }
 
         [HttpPost]
@@ -38,12 +46,27 @@ namespace MiddleTier.API.Controllers
             // TODO return something more meaningful
             return CustomResponse(companyViewModel);
         }
+    
+        [HttpPut]
+        public async Task<ActionResult<CompanyViewModel>> Update(Guid id, [FromBody] CompanyViewModel companyViewModel)
+        {
+            if (id != companyViewModel.Id)
+            {
+                NotifyErro("The Id provided is not the same infomed on the Company");
+                return CustomResponse(companyViewModel);
+            }
+
+            if (!ModelState.IsValid) return CustomResponse(ModelState);
+
+            await _companyService.Update(id, companyViewModel);
+            return CustomResponse(companyViewModel);
+        }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CompanyViewModel>>> GetAll()
         {
             var result = await _companyService.GetAll();
-            return CustomResponse(result);
+            return CustomResponse(result.Data);
         }
     }
 }

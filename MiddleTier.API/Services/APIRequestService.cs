@@ -24,7 +24,7 @@ namespace MiddleTier.API.Services
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public async Task<CompanyViewModel> GetById(Guid id)
+        public async Task<CustomResponse<CompanyViewModel>> GetById(Guid id)
         {
             try
             {
@@ -36,21 +36,21 @@ namespace MiddleTier.API.Services
                     var rawResponse = readTask.GetAwaiter().GetResult();
 
                     // Deserealize JSON to ViewModel
-                    return JsonSerializer.Deserialize<CompanyViewModel>(rawResponse,
+                    return JsonSerializer.Deserialize<CustomResponse<CompanyViewModel>>(rawResponse,
                         new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 }
                 Notify(response.ReasonPhrase);
-                return null;
+                return new CustomResponse<CompanyViewModel>(false, ResponseMessage.COMPANY_NOT_FOUND + response.ReasonPhrase, null);
             }
             catch (Exception ex)
             {
                 Notify(ex.Message);
                 Notify(ex.InnerException?.Message);
-                return null;
+                return new CustomResponse<CompanyViewModel>(false, ResponseMessage.ERROR_PROCESSING_REQUEST + ex.Message, null);
             }
         }
 
-        public async Task<CompanyViewModel> GetByISIN(string isin)
+        public async Task<CustomResponse<CompanyViewModel>> GetByISIN(string isin)
         {
             try
             {
@@ -62,21 +62,23 @@ namespace MiddleTier.API.Services
                     var rawResponse = readTask.GetAwaiter().GetResult();
 
                     // Deserealize JSON to ViewModel
-                    return JsonSerializer.Deserialize<CompanyViewModel>(rawResponse,
+                    var result = JsonSerializer.Deserialize<CustomResponse<CompanyViewModel>>(rawResponse,
                         new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    return result;
                 }
                 Notify(response.ReasonPhrase);
-                return null;
+                return new CustomResponse<CompanyViewModel>(false, ResponseMessage.COMPANY_NOT_FOUND + response.ReasonPhrase, null);
             }
             catch (Exception ex)
             {
                 Notify(ex.Message);
                 Notify(ex.InnerException?.Message);
-                return null;
+                return new CustomResponse<CompanyViewModel>(false, ResponseMessage.ERROR_PROCESSING_REQUEST + ex.Message, null);
             }
         }
 
-        public async Task<bool> Add(CompanyViewModel company)
+        public async Task<CustomResponse<CompanyViewModel>> Add(CompanyViewModel company)
         {
             try
             {
@@ -86,24 +88,20 @@ namespace MiddleTier.API.Services
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // TODO refactor
-                    var readTask = response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    var rawResponse = readTask.GetAwaiter().GetResult();
-                    Console.WriteLine(rawResponse);
-                    return true;
+                    return new CustomResponse<CompanyViewModel>(true, ResponseMessage.COMPANY_CREATED, null);
                 }
                 Notify(response.ReasonPhrase);
-                return false;
+                return new CustomResponse<CompanyViewModel>(false, ResponseMessage.COULD_NOT_PERFORM_OPERATION + response.ReasonPhrase, null);
             }
             catch (Exception ex)
             {
                 Notify(ex.Message);
                 Notify(ex.InnerException?.Message);
-                return false;
+                return new CustomResponse<CompanyViewModel>(false, ResponseMessage.ERROR_PROCESSING_REQUEST + ex.Message, null);
             }
         }
 
-        public async Task<IEnumerable<CompanyViewModel>> GetAll()
+        public async Task<CustomResponse<IEnumerable<CompanyViewModel>>> GetAll()
         {
             try
             {
@@ -115,21 +113,23 @@ namespace MiddleTier.API.Services
                     var rawResponse = readTask.GetAwaiter().GetResult();
 
                     // Deserealize JSON to ViewModel
-                    return JsonSerializer.Deserialize<IEnumerable<CompanyViewModel>>(rawResponse,
+                    var result = JsonSerializer.Deserialize<CustomResponse<IEnumerable<CompanyViewModel>>>(rawResponse,
                         new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    return result;
                 }
                 Notify(response.ReasonPhrase);
-                return null;
+                return new CustomResponse<IEnumerable<CompanyViewModel>>(false, ResponseMessage.COULD_NOT_RETRIEVE_INFORMATION + response.ReasonPhrase, null);
             }
             catch (Exception ex)
             {
                 Notify(ex.Message);
                 Notify(ex.InnerException?.Message);
-                return null;
+                return new CustomResponse<IEnumerable<CompanyViewModel>>(false, ResponseMessage.ERROR_PROCESSING_REQUEST + ex.Message, null);
             }
         }
 
-        public async Task<CompanyViewModel> Update(Guid id, CompanyViewModel company)
+        public async Task<CustomResponse<CompanyViewModel>> Update(Guid id, CompanyViewModel company)
         {
             try
             {
@@ -138,21 +138,16 @@ namespace MiddleTier.API.Services
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var readTask = response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    var rawResponse = readTask.GetAwaiter().GetResult();
-
-                    // Deserealize JSON to ViewModel
-                    return JsonSerializer.Deserialize<CompanyViewModel>(rawResponse,
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    return new CustomResponse<CompanyViewModel>(true, ResponseMessage.COMPANY_UPDATED, null);
                 }
                 Notify(response.ReasonPhrase);
-                return null;
+                return new CustomResponse<CompanyViewModel>(false, ResponseMessage.COULD_NOT_PERFORM_OPERATION + response.ReasonPhrase, null);
             }
             catch (Exception ex)
             {
                 Notify(ex.Message);
                 Notify(ex.InnerException?.Message);
-                return null;
+                return new CustomResponse<CompanyViewModel>(false, ResponseMessage.ERROR_PROCESSING_REQUEST + ex.Message, null);
             }
         }
 

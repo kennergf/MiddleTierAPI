@@ -8,12 +8,14 @@ namespace MiddleTier.API.Interfaces
 {
     public interface IAPIRequestService : IDisposable
     {
-        Task<CompanyViewModel> GetById(Guid id);
-        
-        Task<CompanyViewModel> GetByISIN(string isin);
-        
-        Task<bool> Add(CompanyViewModel company);
+        Task<CustomResponse<CompanyViewModel>> GetById(Guid id);
 
-        Task<IEnumerable<CompanyViewModel>> GetAll();
+        Task<CustomResponse<CompanyViewModel>> GetByISIN(string isin);
+
+        Task<CustomResponse<CompanyViewModel>> Add(CompanyViewModel company);
+
+        Task<CustomResponse<CompanyViewModel>> Update(Guid id, CompanyViewModel company);
+
+        Task<CustomResponse<IEnumerable<CompanyViewModel>>> GetAll();
     }
 }
