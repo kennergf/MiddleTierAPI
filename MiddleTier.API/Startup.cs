@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using MiddleTier.API.Interfaces;
 using MiddleTier.API.Services;
+using MiddleTier.API.Settings;
 
 namespace MiddleTier.API
 {
@@ -34,6 +35,8 @@ namespace MiddleTier.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MiddleTier.API", Version = "v1" });
             });
+
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
 
             services.AddAutoMapper(typeof(Startup));
 

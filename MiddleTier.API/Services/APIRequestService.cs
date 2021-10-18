@@ -5,19 +5,22 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using MiddleTier.API.Interfaces;
 using MiddleTier.API.Response;
+using MiddleTier.API.Settings;
 using MiddleTier.API.ViewModels;
 
 namespace MiddleTier.API.Services
 {
     public class APIRequestService : BaseService, IAPIRequestService
     {
-        private static string APIUrl = "http://localhost:4000/api/v1.0/Companies";
+        private static string APIUrl;
         private static HttpClient client;
 
-        public APIRequestService(INotifier notifier) : base(notifier)
+        public APIRequestService(INotifier notifier, IOptions<AppSettings> settings) : base(notifier)
         {
+            APIUrl = settings.Value.DB_API_URL;
             client = new HttpClient();
             client.BaseAddress = new Uri(APIUrl);
             client.DefaultRequestHeaders.Accept.Clear();
