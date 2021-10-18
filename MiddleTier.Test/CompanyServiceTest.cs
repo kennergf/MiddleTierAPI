@@ -30,6 +30,8 @@ namespace MiddleTier.Test
             
             _APIRequestService.Setup(x => x.GetByISIN(It.IsIn("US12A1235699")))
                 .Returns(() => Task.FromResult(new CustomResponse<CompanyViewModel>(true, ResponseMessage.COMPANY_RETRIEVED, new CompanyViewModel { Id = Guid.Parse("55bca715-c209-45c6-8d53-1ab35907ce8a"), Name = "Apple", Exchange = "Nasdaq", Ticker = "0ticker0", ISIN = "US12A1235699", WebSite = "apple.com" })));
+            _APIRequestService.Setup(x => x.GetByISIN(It.IsNotIn("US12A1235699")))
+                .Returns(() => Task.FromResult(new CustomResponse<CompanyViewModel>(false, ResponseMessage.COMPANY_NOT_FOUND, null)));
             
             _APIRequestService.Setup(x => x.GetAll())
                 .Returns(Task.FromResult(new CustomResponse<IEnumerable<CompanyViewModel>>(true, ResponseMessage.COMPANY_RETRIEVED,(IEnumerable<CompanyViewModel>)companies)));
@@ -78,7 +80,7 @@ namespace MiddleTier.Test
         {
             var result = await companyService.GetByISIN("BR12A4535689");
 
-            Assert.Null(result);
+            Assert.Null(result.Data);
         }
 
         [Fact]
