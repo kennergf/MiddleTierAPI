@@ -1,19 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using MiddleTier.Api.Configuration;
+using MiddleTier.Api.Extensions;
 using MiddleTier.API.Interfaces;
 using MiddleTier.API.Services;
-using MiddleTier.API.Settings;
 
 namespace MiddleTier.API
 {
@@ -36,16 +32,20 @@ namespace MiddleTier.API
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MiddleTier.API", Version = "v1" });
             });
 
-            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+            services.AddIdentityConfig(Configuration);
 
             services.AddAutoMapper(typeof(Startup));
 
-            services.AddApiVersioning(options => 
+            services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = true;
                 options.DefaultApiVersion = new ApiVersion(1, 0);
                 options.ReportApiVersions = true;
             });
+
+            // Used to recover data from loged user
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IUser, AspNetUser>();
 
             services.AddScoped<INotifier, Notifier>();
             services.AddScoped<ICompanyService, CompanyService>();
@@ -67,6 +67,7 @@ namespace MiddleTier.API
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

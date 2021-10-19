@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MiddleTier.Api.Extensions;
 using MiddleTier.API.Interfaces;
-using MiddleTier.API.Models;
 using MiddleTier.API.ViewModels;
 
 namespace MiddleTier.API.Controllers
@@ -23,6 +24,7 @@ namespace MiddleTier.API.Controllers
             _mapper = mapper;
         }
 
+        [Authorize]
         [HttpGet("[action]")]
         public async Task<ActionResult<CompanyViewModel>> GetById([FromQuery] string id)
         {
@@ -30,6 +32,7 @@ namespace MiddleTier.API.Controllers
             return CustomResponse(result.Data);
         }
 
+        [Authorize]
         [HttpGet("[action]")]
         public async Task<ActionResult<CompanyViewModel>> GetByISIN([FromQuery] string isin)
         {
@@ -37,6 +40,7 @@ namespace MiddleTier.API.Controllers
             return CustomResponse(result.Data);
         }
 
+        [ClaimsAuthorize("Company", "Add")]
         [HttpPost]
         public async Task<ActionResult<CompanyViewModel>> Add(CompanyViewModel companyViewModel)
         {
@@ -46,7 +50,8 @@ namespace MiddleTier.API.Controllers
             // TODO return something more meaningful
             return CustomResponse(companyViewModel);
         }
-    
+
+        [ClaimsAuthorize("Company", "Update")]
         [HttpPut]
         public async Task<ActionResult<CompanyViewModel>> Update(Guid id, [FromBody] CompanyViewModel companyViewModel)
         {
@@ -62,6 +67,7 @@ namespace MiddleTier.API.Controllers
             return CustomResponse(companyViewModel);
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CompanyViewModel>>> GetAll()
         {
