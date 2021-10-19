@@ -15,11 +15,24 @@ To connect to the Data Base API Aplication set the URL on the DB_API_URL propert
 # JWT
 JWT configuration are set on appsettings under the section AppSettings
 
-# curl 
+# curl example
+# Register
+curl --location --request POST 'http://localhost:5000/api/v1.0/Register' --header 'Content-Type: application/json' -d '{"email": "test@api.ie", "password":"Api@2021", "confirmpassword":"Api@2021"}'
+
+# Login
 curl --location --request POST 'http://localhost:5000/api/v1.0/Login' --header 'Content-Type: application/json' -d '{"email": "admin@api.ie", "password":"Api@2021"}'
 
-curl --location --request GET 'http://localhost:4000/api/v1.0/Companies/GetByISIN?ISIN=US4578235699'
+# GetAll
+curl --location --request GET 'http://localhost:5000/api/v1.0/Companies/'
 
-curl --location --request GET 'http://localhost:4000/api/v1.0/Companies/GetById?Id=d2b36c62-d8db-4a82-a080-08d9927770eb'
+# GetByISIN
+curl --location --request GET 'http://localhost:5000/api/v1.0/Companies/GetByISIN?ISIN=US4578235699' -H "Authorization: Bearer YOUR_TOKEN_HERE"
 
-curl --location --request POST 'http://localhost:5000/api/v1.0/Login' --header 'Content-Type: application/json' -d '{"email": "admin@api.ie", "password":"Api@2021"}'
+# GetById
+curl --location --request GET 'http://localhost:5000/api/v1.0/Companies/GetById?Id=d2b36c62-d8db-4a82-a080-08d9927770eb' -H "Authorization: Bearer YOUR_TOKEN_HERE"
+
+# Add
+curl --location --request POST 'http://localhost:5000/api/v1.0/Companies/' --header 'Content-Type: application/json' -d '{"name":"", "Exchange":"", "Ticker":"", "ISIN":"", "WebSite":""}' -H "Authorization: Bearer YOUR_TOKEN_HERE"
+
+# Update
+curl --location --request PUT 'http://localhost:5000/api/v1.0/Companies?Id=5d33f242-740c-46af-0688-08d991654a69' --header 'Content-Type: application/json' -d '{"name":"", "Exchange":"", "Ticker":"", "ISIN":"", "WebSite":""}' -H "Authorization: Bearer YOUR_TOKEN_HERE"

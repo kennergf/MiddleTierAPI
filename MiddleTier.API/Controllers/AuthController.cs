@@ -26,8 +26,7 @@ namespace MiddleTier.API.Controllers
         public AuthController(INotifier notifier, 
                               SignInManager<IdentityUser> signInManager, 
                               UserManager<IdentityUser> userManager, 
-                              IOptions<AppSettings> appSettings,
-                              IUser user) : base(notifier)
+                              IOptions<AppSettings> appSettings) : base(notifier)
         {
             _signInManager = signInManager;
             _userManager = userManager;

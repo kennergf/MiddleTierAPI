@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MiddleTier.Api.Extensions;
 using MiddleTier.API.Interfaces;
 using MiddleTier.API.ViewModels;
 
@@ -40,7 +39,7 @@ namespace MiddleTier.API.Controllers
             return CustomResponse(result.Data);
         }
 
-        [ClaimsAuthorize("Company", "Add")]
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<CompanyViewModel>> Add(CompanyViewModel companyViewModel)
         {
@@ -51,7 +50,7 @@ namespace MiddleTier.API.Controllers
             return CustomResponse(companyViewModel);
         }
 
-        [ClaimsAuthorize("Company", "Update")]
+        [Authorize]
         [HttpPut]
         public async Task<ActionResult<CompanyViewModel>> Update(Guid id, [FromBody] CompanyViewModel companyViewModel)
         {
